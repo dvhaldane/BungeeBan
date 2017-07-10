@@ -72,7 +72,7 @@ public class BungeeBan extends Plugin {
         pm.registerCommand(this, new UnbanCommand("unban"));
         pm.registerCommand(this, new UnmuteCommand("unmute"));
         pm.registerCommand(this, new CheckCommand("check"));
-     /** TODO   pm.registerCommand(this, new CheckCommand("history"));*/
+        pm.registerCommand(this, new HistoryCommand("history"));
     }
 
     public void log(String str) {
