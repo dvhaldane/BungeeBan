@@ -43,6 +43,7 @@ public class BungeeBan extends Plugin {
             log("SQL successfully connected. Now creating tables.");
             sql.createTableIfNotExists("BungeeBan_Bans", "UUID VARCHAR(100), BanEnd LONG, BanReason VARCHAR(256), BannedBy VARCHAR(100)");
             sql.createTableIfNotExists("BungeeBan_Mutes", "UUID VARCHAR(100), MuteEnd LONG, MuteReason VARCHAR(256), MutedBy VARCHAR(100)");
+            sql.createTableIfNotExists("BungeeBan_History", "UUID VARCHAR(100), BanType SET('ban','unban','mute','unmute'), BanStart LONG, BanEnd LONG, BanReason VARCHAR(256), BannedBy VARCHAR(100)");
             register();
             log("Tables successfully created.");
             log("Loading complete!");
@@ -71,6 +72,7 @@ public class BungeeBan extends Plugin {
         pm.registerCommand(this, new UnbanCommand("unban"));
         pm.registerCommand(this, new UnmuteCommand("unmute"));
         pm.registerCommand(this, new CheckCommand("check"));
+     /** TODO   pm.registerCommand(this, new CheckCommand("history"));*/
     }
 
     public void log(String str) {

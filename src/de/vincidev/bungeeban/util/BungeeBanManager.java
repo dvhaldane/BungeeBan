@@ -27,7 +27,10 @@ public class BungeeBanManager {
 
     public static void unban(UUID uuid, String unbannedBy) {
         BungeeCord.getInstance().getPluginManager().callEvent(new BungeeUnbanEvent(uuid, unbannedBy));
+        long now = System.currentTimeMillis();
         BungeeBan.getSQL().update("DELETE FROM BungeeBan_Bans WHERE UUID='" + uuid.toString() + "'");
+        BungeeBan.getSQL().update("INSERT INTO BungeeBan_History(UUID, BanType, BanStart, BannedBy) " +
+                "VALUES('" + uuid.toString() + "', 'unban', '" + now + "', '" + unbannedBy + "')");
     }
 
     public static void ban(UUID uuid, long seconds, String banReason, String bannedBy) {
@@ -36,8 +39,12 @@ public class BungeeBanManager {
             if (seconds > 0) {
                 end = System.currentTimeMillis() + (seconds * 1000);
             }
+            long now = System.currentTimeMillis();
             BungeeBan.getSQL().update("INSERT INTO BungeeBan_Bans(UUID, BanEnd, BanReason, BannedBy) " +
                     "VALUES('" + uuid.toString() + "', '" + end + "', '" + banReason + "', '" + bannedBy + "')");
+
+            BungeeBan.getSQL().update("INSERT INTO BungeeBan_History(UUID, BanType, BanStart, BanEnd, BanReason, BannedBy) " +
+                    "VALUES('" + uuid.toString() + "', 'ban', '" + now + "', '" + end + "', '" + banReason + "', '" + bannedBy + "')");
             ProxiedPlayer target = BungeeCord.getInstance().getPlayer(uuid);
             if (target != null) {
                 target.disconnect(getBanKickMessage(uuid));

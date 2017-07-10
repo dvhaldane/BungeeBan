@@ -26,7 +26,10 @@ public class BungeeMuteManager {
 
     public static void unmute(UUID uuid, String unmutedBy) {
         BungeeCord.getInstance().getPluginManager().callEvent(new BungeeUnmuteEvent(uuid, unmutedBy));
+        long now = System.currentTimeMillis();
         BungeeBan.getSQL().update("DELETE FROM BungeeBan_Mutes WHERE UUID='" + uuid.toString() + "'");
+        BungeeBan.getSQL().update("INSERT INTO BungeeBan_History(UUID, BanType, BanStart, BannedBy) " +
+                "VALUES('" + uuid.toString() + "', 'unmute', '" + now + "', '" + unmutedBy + "')");
     }
 
     public static void mute(UUID uuid, long seconds, String MuteReason, String MutedBy) {
@@ -35,9 +38,12 @@ public class BungeeMuteManager {
             if (seconds > 0) {
                 end = System.currentTimeMillis() + (seconds * 1000);
             }
+            long now = System.currentTimeMillis();
             BungeeCord.getInstance().getPluginManager().callEvent(new BungeeMuteEvent(uuid, end, MuteReason, MutedBy));
             BungeeBan.getSQL().update("INSERT INTO BungeeBan_Mutes(UUID, MuteEnd, MuteReason, MutedBy) " +
                     "VALUES('" + uuid.toString() + "', '" + end + "', '" + MuteReason + "', '" + MutedBy + "')");
+            BungeeBan.getSQL().update("INSERT INTO BungeeBan_History(UUID, BanType, BanStart, BanEnd, BanReason, BannedBy) " +
+                    "VALUES('" + uuid.toString() + "', 'mute', '" + now + "', '" + end + "', '" + MuteReason + "', '" + MutedBy + "')");
         }
     }
 
