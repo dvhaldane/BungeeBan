@@ -12,4 +12,4 @@ Features:
   - Easy lookup of bans and mutes
   - Open source
   - Always ready for recommendations
-  - Ban History
+  - Ban History 
