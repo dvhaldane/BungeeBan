@@ -143,3 +143,14 @@ lang:
         negative:
         - '&3The player &e{NAME} is &2not muted&3.'
       uuid: '&3UUID: &e{UUID}'
+    history:
+      syntax: '&3Usage: &e/history <Player>'
+      header:
+        '&3History of: &e{NAME}'
+      broadcast:
+      - '&3Action: &e{ACTION}'
+      - '&3Start: &e{START}'
+      - '&3End: &e{END}'
+      - '&3Reason: &e{REASON}'
+      - '&3By: &e{BY}'
+      - '&3-----------'

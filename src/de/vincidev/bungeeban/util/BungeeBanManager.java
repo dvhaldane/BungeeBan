@@ -16,7 +16,7 @@ public class BungeeBanManager {
     public static boolean isBanned(UUID uuid) {
         ResultSet rs = BungeeBan.getSQL().getResult("SELECT * FROM BungeeBan_Bans WHERE UUID='" + uuid.toString() + "'");
         try {
-            if(rs.next()) {
+            if (rs.next()) {
                 return true;
             }
         } catch (SQLException e) {
@@ -27,19 +27,26 @@ public class BungeeBanManager {
 
     public static void unban(UUID uuid, String unbannedBy) {
         BungeeCord.getInstance().getPluginManager().callEvent(new BungeeUnbanEvent(uuid, unbannedBy));
+        long now = System.currentTimeMillis();
         BungeeBan.getSQL().update("DELETE FROM BungeeBan_Bans WHERE UUID='" + uuid.toString() + "'");
+        BungeeBan.getSQL().update("INSERT INTO BungeeBan_History(UUID, BanType, BanStart, BannedBy) " +
+                "VALUES('" + uuid.toString() + "', 'unban', '" + now + "', '" + unbannedBy + "')");
     }
 
     public static void ban(UUID uuid, long seconds, String banReason, String bannedBy) {
-        if(!isBanned(uuid)) {
+        if (!isBanned(uuid)) {
             long end = -1L;
-            if(seconds > 0) {
-                end = System.currentTimeMillis() + (seconds*1000);
+            if (seconds > 0) {
+                end = System.currentTimeMillis() + (seconds * 1000);
             }
+            long now = System.currentTimeMillis();
             BungeeBan.getSQL().update("INSERT INTO BungeeBan_Bans(UUID, BanEnd, BanReason, BannedBy) " +
                     "VALUES('" + uuid.toString() + "', '" + end + "', '" + banReason + "', '" + bannedBy + "')");
+
+            BungeeBan.getSQL().update("INSERT INTO BungeeBan_History(UUID, BanType, BanStart, BanEnd, BanReason, BannedBy) " +
+                    "VALUES('" + uuid.toString() + "', 'ban', '" + now + "', '" + end + "', '" + banReason + "', '" + bannedBy + "')");
             ProxiedPlayer target = BungeeCord.getInstance().getPlayer(uuid);
-            if(target != null) {
+            if (target != null) {
                 target.disconnect(getBanKickMessage(uuid));
             }
             BungeeCord.getInstance().getPluginManager().callEvent(new BungeeBanEvent(uuid, end, banReason, bannedBy));
@@ -50,7 +57,7 @@ public class BungeeBanManager {
         long end = 0;
         ResultSet rs = BungeeBan.getSQL().getResult("SELECT * FROM BungeeBan_Bans WHERE UUID='" + uuid.toString() + "'");
         try {
-            if(rs.next()) {
+            if (rs.next()) {
                 end = rs.getLong("BanEnd");
             }
         } catch (SQLException e) {
@@ -63,7 +70,7 @@ public class BungeeBanManager {
         String str = "-";
         ResultSet rs = BungeeBan.getSQL().getResult("SELECT * FROM BungeeBan_Bans WHERE UUID='" + uuid.toString() + "'");
         try {
-            if(rs.next()) {
+            if (rs.next()) {
                 str = rs.getString("BanReason");
             }
         } catch (SQLException e) {
@@ -76,7 +83,7 @@ public class BungeeBanManager {
         String str = "";
         ResultSet rs = BungeeBan.getSQL().getResult("SELECT * FROM BungeeBan_Bans WHERE UUID='" + uuid.toString() + "'");
         try {
-            if(rs.next()) {
+            if (rs.next()) {
                 str = rs.getString("BannedBy");
             }
         } catch (SQLException e) {
@@ -86,27 +93,27 @@ public class BungeeBanManager {
     }
 
     public static String getRemainingBanTime(UUID uuid) {
-        if(isBanned(uuid)) {
+        if (isBanned(uuid)) {
             long end = getBanEnd(uuid);
-            if(end > 0) {
-                long millis = end-System.currentTimeMillis();
+            if (end > 0) {
+                long millis = end - System.currentTimeMillis();
                 int days = 0;
                 int hours = 0;
                 int minutes = 0;
                 int seconds = 0;
-                while(millis >= 1000) {
+                while (millis >= 1000) {
                     seconds++;
                     millis -= 1000;
                 }
-                while(seconds >= 60) {
+                while (seconds >= 60) {
                     minutes++;
                     seconds -= 60;
                 }
-                while(minutes >= 60) {
+                while (minutes >= 60) {
                     hours++;
                     minutes -= 60;
                 }
-                while(hours >= 24) {
+                while (hours >= 24) {
                     days++;
                     hours -= 24;
                 }
@@ -124,7 +131,7 @@ public class BungeeBanManager {
                 "{BY}~" + getWhoBanned(uuid),
                 "{REMAININGTIME}~" + getRemainingBanTime(uuid));
         String str = "";
-        for(String line : lines) {
+        for (String line : lines) {
             str = str + line + "\n";
         }
         return str;
